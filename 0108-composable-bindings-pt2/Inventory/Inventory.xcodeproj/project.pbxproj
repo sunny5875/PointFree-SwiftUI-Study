@@ -15,6 +15,7 @@
 		2A6F01E524A3BA3600C64BEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2A6F01E324A3BA3600C64BEF /* LaunchScreen.storyboard */; };
 		2A6F01F024A3BA3600C64BEF /* InventoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6F01EF24A3BA3600C64BEF /* InventoryTests.swift */; };
 		2A6F01FC24A3D96900C64BEF /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 2A6F01FB24A3D96900C64BEF /* CasePaths */; };
+		D688886B2AD2C77400EC2F66 /* Completed.swift in Sources */ = {isa = PBXBuildFile; fileRef = D688886A2AD2C77400EC2F66 /* Completed.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +40,7 @@
 		2A6F01EB24A3BA3600C64BEF /* InventoryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InventoryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A6F01EF24A3BA3600C64BEF /* InventoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryTests.swift; sourceTree = "<group>"; };
 		2A6F01F124A3BA3600C64BEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D688886A2AD2C77400EC2F66 /* Completed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completed.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +90,7 @@
 				2A6F01E324A3BA3600C64BEF /* LaunchScreen.storyboard */,
 				2A6F01E624A3BA3600C64BEF /* Info.plist */,
 				2A6F01E024A3BA3600C64BEF /* Preview Content */,
+				D688886A2AD2C77400EC2F66 /* Completed.swift */,
 			);
 			path = Inventory;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				2A6F01D924A3BA3500C64BEF /* AppDelegate.swift in Sources */,
 				2A6F01DB24A3BA3500C64BEF /* SceneDelegate.swift in Sources */,
 				2A6F01DD24A3BA3500C64BEF /* ContentView.swift in Sources */,
+				D688886B2AD2C77400EC2F66 /* Completed.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -372,13 +376,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Inventory/Preview Content\"";
+				DEVELOPMENT_TEAM = 2YJXRFH75A;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Inventory/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = co.pointfree.Inventory;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointfree.Inventory;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -391,13 +396,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Inventory/Preview Content\"";
+				DEVELOPMENT_TEAM = 2YJXRFH75A;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Inventory/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = co.pointfree.Inventory;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointfree.Inventory;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

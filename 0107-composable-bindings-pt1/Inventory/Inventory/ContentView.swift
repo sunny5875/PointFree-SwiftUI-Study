@@ -3,6 +3,7 @@ import SwiftUI
 struct Item {
   var name: String
   var color: Color?
+    // status와 관련된 변수들은 묶어서 관리하는 것이 좋음!
 //  var quantity = 1
 //  var isInStock = true
 //  var isOnBackOrder = false
@@ -56,7 +57,7 @@ struct Item {
     }
   }
 
-  enum Color: String, CaseIterable {
+  enum Color: String, CaseIterable { // allCases를 쓰기 위해 CaseIterable을 구현, hashable을 지원하기 위해 rawValue타입인 String을 상속
     case blue
     case green
     case black
@@ -91,7 +92,7 @@ struct ItemView: View {
 
       Picker(selection: self.$item.color, label: Text("Color")) {
         Text("None")
-          .tag(Item.Color?.none)
+          .tag(Item.Color?.none) // 피커에 색이 선택되지 않은 경우의 뷰
 
         ForEach(Item.Color.allCases, id: \.rawValue) { color in
           Text(color.rawValue)
@@ -101,7 +102,7 @@ struct ItemView: View {
 
       if self.item.status.isInStock {
         Section(header: Text("In stock")) {
-          Stepper("Quantity: \(self.item.status.quantity)", value: self.$item.status.quantity)
+          Stepper("Quantity: \(self.item.status.quantity)", value: self.$item.status.quantity) // -+해주는 뷰를 의미
           Button("Mark as sold out") {
 //            self.item.quantity = 0
 //            self.item.isInStock = false
@@ -132,7 +133,7 @@ struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
 
     struct Wrapper: View {
-      @State var item = Item(name: "Keyboard", color: .green, status: .inStock(quantity: 1))
+      @State var item = Item(name: "Keyboard", color: .none, status: .inStock(quantity: 1))
 
       var body: some View {
         ItemView(item: self.$item)

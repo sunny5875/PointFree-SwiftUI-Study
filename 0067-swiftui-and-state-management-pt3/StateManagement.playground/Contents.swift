@@ -92,7 +92,7 @@ import Combine
 class AppState: ObservableObject {
   @Published var count = 0
   @Published var favoritePrimes: [Int] = []
-  @Published var loggedInUser: User? = nil
+  @Published var loggedInUser: User? = nil // 그냥 예시임
   @Published var activityFeed: [Activity] = []
 
   struct Activity {
@@ -208,7 +208,7 @@ struct IsPrimeModalView: View {
 
 struct FavoritePrimesState {
   var favoritePrimes: [Int]
-  var activityFeed: [AppState.Activity]
+  var activityFeed: [AppState.Activity] // 활동 로그를 저장
 }
 extension AppState {
   var favoritePrimesState: FavoritePrimesState {
