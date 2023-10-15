@@ -4,9 +4,6 @@ struct Item: Hashable, Identifiable {
   let id = UUID()
   var name: String
   var color: Color?
-//  var quantity = 1
-//  var isInStock = true
-//  var isOnBackOrder = false
   var status: Status
   
   enum Status: Hashable {
@@ -18,46 +15,6 @@ struct Item: Hashable, Identifiable {
       return true
     }
     
-//    var quantity: Int? {
-//      get {
-//        switch self {
-//        case .inStock(quantity: let quantity):
-//          return quantity
-//        case .outOfStock:
-//          return nil
-//        }
-//      }
-//      set {
-////        switch self {
-////        case .inStock:
-////          self = .inStock(quantity: newValue)
-////        case .outOfStock:
-////          break
-////        }
-//        guard let quantity = newValue else { return }
-//        self = .inStock(quantity: quantity)
-//      }
-//    }
-//
-//    var isOnBackOrder: Bool? {
-//      get {
-//        guard case let .outOfStock(isOnBackOrder) = self else {
-////          return false
-////          return true
-//          return nil
-//        }
-//        return isOnBackOrder
-//      }
-//      set {
-////        switch self {
-////        case .inStock:
-////          break
-////        case .outOfStock:
-//        guard let newValue = newValue else { return }
-//        self = .outOfStock(isOnBackOrder: newValue)
-////        }
-//      }
-//    }
   }
 
   enum Color: String, CaseIterable {
@@ -85,55 +42,15 @@ struct Item: Hashable, Identifiable {
       }
     }
   }
-
-//  static func inStock(
-//    name: String,
-//    color: Color?,
-//    quantity: Int
-//  ) -> Self {
-//    Item(name: name, color: color, quantity: quantity, isInStock: true, isOnBackOrder: false)
-//  }
-//
-//  static func outOfStock(
-//    name: String,
-//    color: Color?,
-//    isOnBackOrder: Bool
-//  ) -> Self {
-//    Item(name: name, color: color, quantity: 0, isInStock: false, isOnBackOrder: isOnBackOrder)
-//  }
 }
 
 extension Binding {
-
-  // (WritableKeyPath<Value, LocalValue>) -> (Binding<Value>) -> Binding<LocalValue>
-
-  // (WritableKeyPath<A, B>) -> (Binding<A>) -> Binding<B>
-
-  // ((A) -> B) -> ([A]) -> [B]
-  // ((A) -> B) -> (A?) -> B?
-  // ((A) -> B) -> (Result<A, E>) -> Result<B, E>
-
-
-  // pullback: ((A) -> B) -> (Predicate<B>) -> Predicate<A>
-  // pullback: ((A) -> B) -> (Snapshotting<B>) -> Snapshotting<A>
-
-
-  // pullback: (WritableKeyPath<A, B>) -> (Reducer<B>) -> Reducer<A>
-
-
-
   func map<LocalValue>(_ keyPath: WritableKeyPath<Value, LocalValue>) -> Binding<LocalValue> {
 
     self[dynamicMember: keyPath]
-
-//    Binding<LocalValue>(
-//      get: { self.wrappedValue[keyPath: keyPath] },
-//      set: { localValue in self.wrappedValue[keyPath: keyPath] = localValue }
-//    )
   }
 }
 
-//extension <Wrapped> Binding where Value == Optional<Wrapped> {
 extension Binding {
   func unwrap<Wrapped>() -> Binding<Wrapped>? where Value == Wrapped? {
     guard let value = self.wrappedValue else { return nil }
@@ -151,8 +68,6 @@ extension Binding {
 
   func matching<Case>(
     _ casePath: CasePath<Value, Case>
-//    extract: @escaping (Value) -> Case?,
-//    embed: @escaping (Case) -> Value
   ) -> Binding<Case>? {
     guard let `case` = casePath.extract(from: self.wrappedValue) else { return nil }
     return Binding<Case>(
@@ -182,7 +97,6 @@ struct ItemView: View {
       }
 
       self.$item.status[/Item.Status.inStock].map { quantity in
-//      if let quantity = self.$item.status.matching(/Item.Status.inStock) {
         Section(header: Text("In stock")) {
           Stepper("Quantity: \(quantity.wrappedValue)", value: quantity)
           Button("Mark as sold out") {
@@ -191,12 +105,6 @@ struct ItemView: View {
         }
       }
 
-//      self.$item.status.quantity.unwrap().map { (quantity: Binding<Int>) in
-//
-//      }
-
-//      self.$item.status.isOnBackOrder.unwrap().map { isOnBackOrder in
-//      if let isOnBackOrder = self.$item.status[/Item.Status.outOfStock] {
       self.$item.status[/Item.Status.outOfStock].map { isOnBackOrder in
         Section(header: Text("Out of stock")) {
           Toggle("Is on back order?", isOn:
@@ -210,10 +118,27 @@ struct ItemView: View {
   }
 }
 
+
+//6. duplicated를 관리해보자
+enum Draft: Identifiable {
+    case adding(Item)
+    case duplicating(Item)
+    
+    var id: UUID {
+        switch self {
+        case let .adding(item): return item.id
+        case let .duplicating(item): return item.id
+        }
+    }
+}
+
+// 1. inventroyViewModel을 만들어서 인벤토리뷰를 만들어보자
 class InventoryViewModel: ObservableObject {
-  @Published var draft: Item?
+//  @Published var draft: Item?
+    @Published var draft: Draft?
   @Published var inventory: [Item]
-  
+ 
+    
   init(
     inventory: [Item] = []
   ) {
@@ -221,7 +146,8 @@ class InventoryViewModel: ObservableObject {
   }
   
   func addButtonTapped() {
-    self.draft = Item(name: "", color: nil, status: .inStock(quantity: 1))
+//    self.draft = Item(name: "", color: nil, status: .inStock(quantity: 1))
+      self.draft = .adding(Item(name: "", color: nil, status: .inStock(quantity: 1)))
   }
   
   func cancelButtonTapped() {
@@ -229,20 +155,35 @@ class InventoryViewModel: ObservableObject {
   }
   
   func saveButtonTapped() {
-    if let item = self.draft {
+//    if let item = self.draft {
+//      self.inventory.append(item)
+//    }
+//    self.draft = nil
+      switch self.draft {
+      case .none: break
+      case let .some(.adding(item)),
+          let .some(.duplicating(item)):
+          self.inventory.append(item)
+      }
+      self.draft = nil
+  }
+    //4-4
+    func saveButtonTapped(item: Item) {
       self.inventory.append(item)
     }
-    self.draft = nil
-  }
   
   func duplicate(item: Item) {
-    self.draft = Item(name: item.name, color: item.color, status: item.status) // item.duplicate()
+//    self.draft = Item(name: item.name, color: item.color, status: item.status)
+      self.draft = .duplicating(Item(name: item.name, color: item.color, status: item.status))
   }
 }
 
 struct InventoryView: View {
-  @ObservedObject var viewModel: InventoryViewModel
-  
+    // 4. apple에서 해결한 방법
+//    @State var draft: Item = .invalid //Item(name: "", status: .inStock(quantity: 1))
+//    @State var isAdding = false
+    @ObservedObject var viewModel: InventoryViewModel
+    
   var body: some View {
     NavigationView {
       List {
@@ -269,8 +210,14 @@ struct InventoryView: View {
                 .foregroundColor(color.toSwiftUIColor)
                 .border(Color.black, width: 1)
             }
+            // 3. 복붙 버튼을 만들자!
+            Button(action: {
+                self.viewModel.duplicate(item: item)
+                // 4-3
+//                self.isAdding = true
+//                   self.draft = Item(name: item.name, color: item.color, status: item.status)
             
-            Button(action: { self.viewModel.duplicate(item: item) }) {
+            }) {
               Image(systemName: "doc.on.doc.fill")
             }
             .padding(.leading)
@@ -280,26 +227,80 @@ struct InventoryView: View {
         }
       }
       .navigationBarTitle("Inventory")
-      .navigationBarItems(
+      .navigationBarItems( // 오른쪽 버튼을 추가하는 코드
         trailing: Button("Add") {
           self.viewModel.addButtonTapped()
+            // 4-2.
+//            self.isAdding = true
         }
       )
+        // 2. 기존 애플에 있는 코드로 구현한 방법
 //        .sheet(item: self.$viewModel.draft) { _ in
 //          self.$viewModel.draft.unwrap().map { item in
-        .sheet(unwrap: self.$viewModel.draft) { item in
+        // 2-1. 근데 viewModel,draft를 두번이나 넣어주넹 이걸 한번에 넣을 방법이 없을까??
+//        .sheet(unwrap: self.$viewModel.draft) { item in
+//          NavigationView {
+//            ItemView(item: item)
+//              .navigationBarItems(
+//                leading: Button("Cancel") { self.viewModel.cancelButtonTapped() },
+//                trailing: Button("Save") { self.viewModel.saveButtonTapped() }
+//            )
+//          }
+//      }
+        // 4-1.
+//      .sheet(isPresented: self.$isAdding) {
+//          NavigationView {
+//              ItemView(item: self.$draft)
+//                  .navigationBarItems(
+//                    leading: Button("Cancel") {
+//                        self.isAdding = false
+//                        self.draft = Item(name: "", color: nil, status: .inStock(quantity: 1))
+//                    },
+//                    trailing: Button("Save") {
+//                        self.isAdding = false
+//                        self.viewModel.saveButtonTapped(item: self.draft)
+//                        self.draft = Item(name: "", color: nil, status: .inStock(quantity: 1))
+//                    }
+//                  )
+//              // 4-5. cancel버튼을 누르지 않고 그냥 유저가 내리는 경우에도 draft값이 비어야 하니까 추가
+//                  .onDisappear {
+//                      self.draft = Item(name: "", color: nil, status: .inStock(quantity: 1))
+//                  }
+//          }
+//      }
+        // 여기 건든 이후로 빌드가 안됨...일단 모르곘어서 둠...
+      .sheet(unwrap: self.$viewModel.draft) { draft in
           NavigationView {
-            ItemView(item: item)
-              .navigationBarItems(
-                leading: Button("Cancel") { self.viewModel.cancelButtonTapped() },
-                trailing: Button("Save") { self.viewModel.saveButtonTapped() }
-            )
+              draft[/Draft.adding]?.map {item in
+                  ItemView(item: item)
+                      .navigationBarItems(
+                        leading: Button("Cancel") { self.viewModel.cancelButtonTapped() },
+                        trailing: Button("Save") { self.viewModel.saveButtonTapped() }
+                      )
+                      .navigationTitle("Add Item")
+              }
+
+              draft[/Draft.duplicating]?.map {item in
+                  ItemView(item: item)
+                      .navigationBarItems(
+                        leading: Button("Cancel") { self.viewModel.cancelButtonTapped() },
+                        trailing: Button("Save") { self.viewModel.saveButtonTapped() }
+                      )
+
+                      .navigationTitle("Duplicating Item")
+              }
           }
       }
     }
   }
 }
 
+// 5. 그냥 Invalid용 변수를 만들자
+extension Item {
+    static let invalid = Item(name: "invalid", status: .inStock(quantity: 1))
+}
+
+// 2-2. 좀 더 쉬워지도록 helper function 구현
 extension View {
   func sheet<Item, Content>(
     unwrap item: Binding<Item?>,
@@ -311,11 +312,6 @@ extension View {
   }
 }
 
-struct ContentView: View {
-  var body: some View {
-    Text("Hello, World!")
-  }
-}
 
 struct InventoryView_Previews: PreviewProvider {
   static var previews: some View {
@@ -330,6 +326,13 @@ struct InventoryView_Previews: PreviewProvider {
       )
     )
   }
+}
+
+
+struct ContentView: View {
+    var body: some View {
+        Text("Hello World")
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
