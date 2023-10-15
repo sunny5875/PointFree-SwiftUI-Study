@@ -9,7 +9,7 @@ struct Article: Equatable, Identifiable {
   var title: String
   var willReadLater = false
 }
-
+// 가짜 article, 로딩 중의 article이라고 보면 됨
 let placeholderArticles = (0...10).map { _ in
   Article(
     blurb: String(repeating: " ", count: .random(in: 50...100)),
@@ -20,7 +20,7 @@ let placeholderArticles = (0...10).map { _ in
     willReadLater: Bool.random()
   )
 }
-
+// 실제 article
 let liveArticles = [
   Article(
     blurb: "What makes functions special, contrasting them with the way we usually write code, and have some exploratory discussions about operators and composition.",

@@ -8,6 +8,7 @@ class AppViewModel: ObservableObject {
   init() {
     self.isLoading = true
 
+      // 네트워크를 모방하기 위해 4초후에 주는 걸로 설정
     DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
       self.articles = liveArticles
       self.isLoading = false
@@ -19,6 +20,7 @@ class AppViewModel: ObservableObject {
   }
 }
 
+// redaction reason 추가
 extension RedactionReasons {
   static let loading = RedactionReasons(rawValue: 1)
 }
@@ -42,15 +44,15 @@ struct VanillaArticlesView: View {
         ) { article in
           Button(
             action: {
-              guard !self.viewModel.isLoading else { return }
+              guard !self.viewModel.isLoading else { return } // 2-3. article을 눌렀을 때 detail view가 보이지 않도록 막아주는 역할해줌
               self.viewModel.tapped(article: article)
             }
           ) {
             ArticleRowView(article: article)
           }
         }
-        .redacted(reason: self.viewModel.isLoading ? .placeholder : [])
-        .disabled(self.viewModel.isLoading)
+        .redacted(reason: self.viewModel.isLoading ? .placeholder : []) // 1. 이걸로 로딩하도록 보여줌
+        .disabled(self.viewModel.isLoading) //2. falseArcticle에는 눌리면 안되니까 뷰를 다 disabled해야 함
       }
       .sheet(item: self.$viewModel.readingArticle) { article in
         NavigationView {
@@ -88,6 +90,7 @@ class ArticleViewModel: ObservableObject {
 
 private struct ArticleRowView: View {
   @StateObject var viewModel: ArticleViewModel
+    // 2-1. disable하기 위해 추가한 변수, environment에서 redactionReasons property를 가져와서 바인딩하는 의미
   @Environment(\.redactionReasons) var redactionReasons
 
   @State var value = 1
@@ -118,7 +121,7 @@ private struct ArticleRowView: View {
 
           Button(
             action: {
-              guard self.redactionReasons.isEmpty else { return }
+              guard self.redactionReasons.isEmpty else { return } // 2-2
               self.viewModel.favorite()
             }) {
             Image(systemName: "star.fill")
@@ -129,7 +132,7 @@ private struct ArticleRowView: View {
 
           Button(
             action: {
-              guard self.redactionReasons.isEmpty else { return }
+              guard self.redactionReasons.isEmpty else { return } // 2-2
               self.viewModel.readLater()
             }) {
             Image(systemName: "book.fill")
@@ -140,7 +143,7 @@ private struct ArticleRowView: View {
 
           Button(
             action: {
-              guard self.redactionReasons.isEmpty else { return }
+              guard self.redactionReasons.isEmpty else { return } // 2-2
               self.viewModel.hide()
             }) {
             Image(systemName: "eye.slash.fill")

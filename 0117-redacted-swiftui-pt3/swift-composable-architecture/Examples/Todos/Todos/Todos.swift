@@ -89,6 +89,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
 
 .debugActions(actionFormat: .labelsOnly)
 
+// 4-4. 해당 로직을 구현하는 퍼스널 함수
 extension View {
   @ViewBuilder func unredacted(if condition: Bool) -> some View {
     if condition {
@@ -106,7 +107,7 @@ struct AppView: View {
   }
 
   let store: Store<AppState, AppAction>
-  @Environment(\.onboardingStep) var onboardingStep
+  @Environment(\.onboardingStep) var onboardingStep // 4-3. 넣어준 enviornmnet를 받아서 child view가 영향받도록 변경
 
   var body: some View {
     WithViewStore(self.store.scope(state: { $0.view })) { viewStore in
@@ -122,7 +123,7 @@ struct AppView: View {
               }
             }
             .pickerStyle(SegmentedPickerStyle())
-            .unredacted(if: self.onboardingStep == .filters)
+            .unredacted(if: self.onboardingStep == .filters) // 4-4. 여기서 온보딩스탭인 것만 unredacted되도록
           }
           .padding([.leading, .trailing])
 
@@ -134,7 +135,7 @@ struct AppView: View {
             .onDelete { viewStore.send(.delete($0)) }
             .onMove { viewStore.send(.move($0, $1)) }
           }
-          .unredacted(if: self.onboardingStep == .todos)
+          .unredacted(if: self.onboardingStep == .todos)// 4-4. 여기서 온보딩스탭인 것만 unredacted되도록
         }
         .navigationBarTitle("Todos")
         .navigationBarItems(
@@ -144,7 +145,7 @@ struct AppView: View {
               .disabled(viewStore.isClearCompletedButtonDisabled)
             Button("Add Todo") { viewStore.send(.addTodoButtonTapped) }
           }
-          .unredacted(if: self.onboardingStep == .actions)
+          .unredacted(if: self.onboardingStep == .actions)// 4-4. 여기서 온보딩스탭인 것만 unredacted되도록
         )
         .environment(
           \.editMode,
@@ -198,6 +199,7 @@ extension IdentifiedArray where ID == UUID, Element == Todo {
   ]
 }
 
+// 3. 온보딩 생성
 enum OnboardingStep {
   case actions
   case filters
@@ -210,14 +212,14 @@ enum OnboardingStep {
     case .filters:
       return .todos
     case .todos:
-      return nil
+        return nil
     }
   }
 
   var previous: Self? {
     switch self {
     case .actions:
-      return self
+        return self
     case .filters:
       return .actions
     case .todos:
@@ -225,7 +227,7 @@ enum OnboardingStep {
     }
   }
 }
-
+// 4. 온보딩 페이지시 설명하는 부분만 redacted가 풀리기 위해 추가한 environment
 struct OnboardingStepEnvironmentKey: EnvironmentKey {
   static var defaultValue: OnboardingStep? = nil
 }
@@ -237,12 +239,13 @@ extension EnvironmentValues {
 }
 
 struct OnboardingView: View {
-  @State var step: OnboardingStep?
+  @State var step: OnboardingStep? // nil이라면 온보딩이 없다는 의미
   let store: Store<AppState, AppAction>
 
   var body: some View {
     if let step = self.step {
       ZStack {
+          // 3-1. 온보딩이 현재 뷰 위에 올라가도록 추가
         AppView(
           store: Store(
             initialState: AppState(todos: .mock),
@@ -250,7 +253,7 @@ struct OnboardingView: View {
             environment: ()
           )
         )
-        .environment(\.onboardingStep, self.step)
+        .environment(\.onboardingStep, self.step) // 4-1.해당 environment를 추가
         .redacted(reason: .placeholder)
 
         VStack {
@@ -305,7 +308,7 @@ struct OnboardingView: View {
           )
         )
       }
-    } else {
+    } else { //실제 메모앱
       AppView(store: self.store)
     }
   }
@@ -328,6 +331,7 @@ struct OnboardingView_Previews: PreviewProvider {
   }
 }
 
+// 1. 여기를 이리저리 바꾸면서 쉽게 상황 변경 가능
 struct AppView_Previews: PreviewProvider {
   static var previews: some View {
     AppView(
@@ -340,7 +344,7 @@ struct AppView_Previews: PreviewProvider {
 //            state.filter = filter
 //            return .none
             return appReducer.run(&state, action, environment)
-            
+
           default:
             return .none
           }
@@ -356,11 +360,12 @@ struct AppView_Previews: PreviewProvider {
     .redacted(reason: .placeholder)
   }
 }
-
+// 2. anaylsis를 추가한다고 가정
 struct AnalyticsClient {
   var track: (String, [String: String]) -> Effect<Never, Never>
 }
 
+// 2-1. 실제 버전일 떄의 anaylsis
 extension AnalyticsClient {
   static let live = Self(
     track: { name, properties in
@@ -370,7 +375,7 @@ extension AnalyticsClient {
     }
   )
 }
-
+// 2-2. placeholder일 때의 anaylsis, 아무런 반응 없도록 구현
 extension AnalyticsClient {
   static let placeholder = Self(
     track: { _, _ in .none }

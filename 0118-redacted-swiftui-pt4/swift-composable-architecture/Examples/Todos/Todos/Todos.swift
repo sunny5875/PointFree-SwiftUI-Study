@@ -236,18 +236,19 @@ extension EnvironmentValues {
   }
 }
 
+// 1. 온보딩에 액션주기
 struct OnboardingState: Equatable {
   var placeholderState: AppState
   var step: OnboardingStep?
 }
-
+// 1-1.
 enum OnboardingAction {
   case previousButtonTapped
   case nextButtonTapped
   case skipButtonTapped
   case placeholderAction(AppAction)
 }
-
+// 1-2.
 let onboardingReducer = Reducer<OnboardingState, OnboardingAction, AppEnvironment> { state, action, environment in
   switch action {
   case .previousButtonTapped:
@@ -286,12 +287,13 @@ let onboardingReducer = Reducer<OnboardingState, OnboardingAction, AppEnvironmen
 }
 
 struct OnboardingView: View {
+    // 1-5. onboardingStore로 변경
 //  @State var step: OnboardingStep?
   let onboardingStore: Store<OnboardingState, OnboardingAction>
   let store: Store<AppState, AppAction>
 
   var body: some View {
-    WithViewStore(self.onboardingStore) { onboardingViewStore in
+    WithViewStore(self.onboardingStore) { onboardingViewStore in // 1-6. 추가
       if let step = onboardingViewStore.step {
         ZStack {
           AppView(
@@ -313,7 +315,7 @@ struct OnboardingView: View {
             Spacer()
 
             HStack(alignment: .top) {
-              Button(action: { onboardingViewStore.send(.previousButtonTapped) }) {
+              Button(action: { onboardingViewStore.send(.previousButtonTapped) }) { // 1-7.button action을 넣어줄 것
                 Image(systemName: "chevron.left")
               }
               .frame(width: 44, height: 44)
